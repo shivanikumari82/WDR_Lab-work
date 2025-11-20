@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Chat App — HTML/CSS/JS</title>
+  <style>
+    :root{
+      --bg:#f3f6fb; --panel:#ffffff; --accent:#4f46e5; --muted:#93a3b8;
+      --me:#e6f0ff; --you:#f3f4f6; --max-width:900px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); display:flex; align-items:center; justify-content:center; padding:24px;
+      color:#0f172a;
+    }
+    .app{
+      width:100%; max-width:var(--max-width); height:80vh; background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.98));
+      border-radius:12px; box-shadow:0 10px 30px rgba(15,23,42,0.08); overflow:hidden; display:grid; grid-template-columns:320px 1fr;
+    }
+    /* Sidebar */
+    .sidebar{background:var(--panel); border-right:1px solid #e6eef8; padding:18px; display:flex; flex-direction:column; gap:12px}
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{width:44px; height:44px; background:linear-gradient(135deg,var(--accent),#06b6d4); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:700}
+    .brand h1{font-size:16px;margin:0}
+    .chats{flex:1; overflow:auto; padding-right:6px}
+    .chat-item{display:flex; gap:10px; padding:10px; border-radius:8px; align-items:center; cursor:pointer}
+    .chat-item:hover{background:#f5f8fb}
+    .chat-item.active{background:#eef2ff}
+    .avatar{width:42px; height:42px; border-radius:10px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-weight:600}
+    .chat-meta{flex:1}
+    .chat-name{font-weight:600}
+    .chat-last{font-size:13px; color:var(--muted)}
+
+    /* Main column */
+    .main{display:flex; flex-direction:column}
+    .header{padding:18px; border-bottom:1px solid #edf2f7; display:flex; gap:12px; align-items:center}
+    .header .avatar{width:46px; height:46px}
+    .header .meta{flex:1}
+    .meta h2{margin:0;font-size:16px}
+    .meta p{margin:0;font-size:13px;color:var(--muted)}
+
+    .messages{flex:1; padding:18px; overflow:auto; background:linear-gradient(180deg, transparent, rgba(0,0,0,0.02)); display:flex; flex-direction:column; gap:12px}
+    .msg{max-width:70%; padding:10px 12px; border-radius:12px; box-shadow:0 1px 0 rgba(255,255,255,0.6) inset}
+    .msg .time{display:block; font-size:11px; color:var(--muted); margin-top:6px}
+    .msg.you{align-self:flex-start; background:var(--you)}
+    .msg.me{align-self:flex-end; background:var(--me)}
+
+    .input-area{padding:12px; border-top:1px solid #edf2f7; display:flex; gap:8px; align-items:center}
+    .input{flex:1; display:flex; gap:8px; align-items:center; background:#fff; border-radius:999px; padding:10px 14px; box-shadow:0 6px 18px rgba(15,23,42,0.03)}
+    .input input{flex:1; border:0; outline:none; font-size:15px}
+    .btn{background:var(--accent); color:white; border:0; padding:10px 16px; border-radius:999px; cursor:pointer}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* typing indicator */
+    .typing{display:flex; gap:6px; align-items:center}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:0.3; animation:bl 1s infinite}
+    .dot:nth-child(2){animation-delay:.15s}
+    .dot:nth-child(3){animation-delay:.3s}
+    @keyframes bl{0%{opacity:.2; transform:translateY(0)}50%{opacity:1; transform:translateY(-3px)}100%{opacity:.2; transform:translateY(0)}}
+
+    @media (max-width:800px){
+      .app{grid-template-columns:1fr; height:92vh}
+      .sidebar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">YC</div>
+        <div>
+          <h1>Youtivity Chat</h1>
+          <div class="small">Local demo — HTML/CSS/JS</div>
+        </div>
+      </div>
+      <div class="chats" id="chatList" aria-label="conversations"></div>
+      <div class="small">Tip: press Enter to send · messages saved locally</div>
+    </aside>
+
+    <main class="main">
+      <div class="header">
+        <div class="avatar">LC</div>
+        <div class="meta">
+          <h2 id="chatTitle">Lovely</h2>
+          <p id="chatSubtitle">Online</p>
+        </div>
+        <div class="small">Clear: 
+          <button id="clearBtn" style="border:none;background:transparent;color:var(--accent);cursor:pointer">Clear</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messages" aria-live="polite"></div>
+
+      <div class="input-area">
+        <div class="input">
+          <input id="msgInput" type="text" placeholder="Type a message..." aria-label="Message input" autocomplete="off" />
+          <button id="emojiBtn" title="Insert emoji">😊</button>
+        </div>
+        <button class="btn" id="sendBtn">Send</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'simpleChatMessages:v1';
+    const defaultConversations = [
+      {id:1,name:'Lovely',messages:[]},
+      {id:2,name:'Career Bot',messages:[]}
+    ];
+
+    const chatList = document.getElementById('chatList');
+    const messagesEl = document.getElementById('messages');
+    const msgInput = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const emojiBtn = document.getElementById('emojiBtn');
+    const chatTitle = document.getElementById('chatTitle');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let state = { conversations: [], activeId: 1 };
+
+    function load(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{ state = JSON.parse(raw); }
+        catch(e){ state = {conversations: defaultConversations, activeId:1}; }
+      } else {
+        state = {conversations: defaultConversations, activeId:1};
+        state.conversations[0].messages.push({from:'you',text:'Hi!'}, {from:'me',text:'Hello! This is a demo chat app.'});
+      }
+    }
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    function formatTime(ts){ const d = new Date(ts); return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+
+    function renderChatList(){
+      chatList.innerHTML='';
+      state.conversations.forEach(conv=>{
+        const item = document.createElement('div');
+        item.className = 'chat-item' + (conv.id===state.activeId? ' active':'');
+        item.tabIndex=0;
+        item.innerHTML = `
+          <div class="avatar">${conv.name.slice(0,2)}</div>
+          <div class="chat-meta">
+            <div class="chat-name">${conv.name}</div>
+            <div class="chat-last">${conv.messages.length? conv.messages[conv.messages.length-1].text.slice(0,40): 'No messages yet'}</div>
+          </div>
+        `;
+        item.addEventListener('click', ()=>{ state.activeId = conv.id; render(); });
+        chatList.appendChild(item);
+      });
+    }
+
+    function renderMessages(){
+      const conv = state.conversations.find(c=>c.id===state.activeId);
+      chatTitle.textContent = conv.name;
+      messagesEl.innerHTML='';
+      conv.messages.forEach(m=>{
+        const el = document.createElement('div');
+        el.className = 'msg ' + (m.from==='me' ? 'me' : 'you');
+        el.innerHTML = `<div>${escapeHtml(m.text)}</div><span class="time">${formatTime(m.ts||Date.now())}</span>`;
+        messagesEl.appendChild(el);
+      });
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function send(text){
+      if(!text || !text.trim()) return;
+      const conv = state.conversations.find(c=>c.id===state.activeId);
+      const msg = {from:'me', text:text.trim(), ts:Date.now()};
+      conv.messages.push(msg);
+      save(); render();
+      simulateReply(conv);
+    }
+
+    function simulateReply(conv){
+      const typingEl = document.createElement('div');
+      typingEl.className = 'msg you';
+      typingEl.id = 'typing';
+      typingEl.innerHTML = `<div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+      messagesEl.appendChild(typingEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      setTimeout(()=>{
+        document.getElementById('typing')?.remove();
+        const replies = [
+          'Nice — tell me more!',
+          'Sounds good. Any questions?',
+          'Cool. I can help with that.',
+          'I like where this is going!'
+        ];
+        const reply = replies[Math.floor(Math.random()*replies.length)];
+        conv.messages.push({from:'you', text:reply, ts:Date.now()});
+        save(); render();
+      }, 800 + Math.random()*1200);
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>\"']/g, function(s){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
+      });
+    }
+
+    sendBtn.addEventListener('click', ()=>{ send(msgInput.value); msgInput.value=''; msgInput.focus(); });
+    msgInput.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(msgInput.value); msgInput.value=''; }
+    });
+    emojiBtn.addEventListener('click', ()=>{ msgInput.value += '😊'; msgInput.focus(); });
+
+    clearBtn.addEventListener('click', ()=>{
+      if(confirm('Clear all conversations and reset demo?')){
+        localStorage.removeItem(STORAGE_KEY); load(); render();
+      }
+    });
+
+    function render(){ renderChatList(); renderMessages(); }
+    load(); render();
+  </script>
+</body>
+</html>
