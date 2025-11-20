@@ -1,63 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login Form</title>
+    <form>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+            width: 300px;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"], 
+        input[type="password"], 
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Complex Form</h1>
-    <fieldset>
-        <legend>Personal Information</legend>
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name">
-    <br>
-    <br>
-    <label for="email">Email:</label>
-    <input type="email" id="email">
-    <br>
-    <br>
-    <label for="phonenumber">Phone Number:</label>
-    <input type="tel" id="phonenumber" name="phonenumber">
-    <br>
-    <br>
-    <label for="dateofbirth">Date of Birth</label>
-    <input type="date" name="dateofbirth" id="dateofbirth">
+    <h2>Form</h2>
+    <!-- Username -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
 
-    <span>Gender:</span>
+        <!-- Date of Birth -->
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required><br><br>
 
-    <label for="radio1">Male</label>
-    <input type="radio" name="radio" id="radio1">
-    
-    <label for="radio2">Female</label>
-    <input type="radio" name="radio" id="radio2">
-    <label for="country">Country:</label>
-    <select name="country" id="country">
-        <option value="india">India</option>
-        <option value="us">US</option>
-    </select>
-</fieldset>
-<fieldset>
-    <legend>Address</legend>
-    <label for="street">Street:</label>
-    <input type="text" id="street" name="street">
-    <label for="city">City:</label>
-    <input type="text" id="city" name="city">
-    <label for="state">State:</label>
-    <input type="text" id="state" name="state">
-    <label for="zipcode">Zip Code:</label>
-    <input type="text" id="zipcode" name="zipcode">
-</fieldset>
-<fieldset>
-    <legend>Other Information</legend>
-    <label for="textarea1">Comments:</label>
-                <br>
-                    <textarea name="textarea1" id="textarea1" cols="30" rows="10"></textarea>
-                    <label for="terms">I agree to the terms of service:</label>
-                    <input type="checkbox" name="terms" id=terms>
+        <!-- Password -->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
 
-</fieldset>
-<input type="submit" value="submit">
-
+        <!-- Submit -->
+        <input type="submit" value="submit">
+    </form>
 </body>
 </html>
