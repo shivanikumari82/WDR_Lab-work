@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To-Do List</title>
+<script>
+  var task_array = [];
+
+  function addtask() {
+    let data = document.getElementById("task").value.trim();
+    if (data !== "") {
+      document.getElementById("error_msg").innerText = "";
+      let task_index = task_array.length;
+      task_array.push(data);
+      displayTask(data, task_index);
+    } else {
+      document.getElementById("error_msg").innerText = "Blank text not allowed";
+      document.getElementById("error_msg").style.color = "red";
+    }
+    document.getElementById("task").value = "";
+  }
+
+  function displayTask(task_data, index) {
+    var listitem = document.createElement("li");
+    listitem.id = "list-" + index;
+    listitem.className = "task-item";
+    listitem.textContent = task_data;
+
+    var complete_button = document.createElement("button");
+    complete_button.id = "complete-" + index;
+    complete_button.textContent = "Mark as Complete";
+    complete_button.className = "complete-btn";
+    complete_button.onclick = function () {
+      var li_id = "list-" + this.id.split("-")[1];
+      document.getElementById(li_id).style.color = "green";
+      document.getElementById(li_id).style.textDecoration = "line-through";
+    };
+
+    var delete_button = document.createElement("button");
+    delete_button.id = "delete-" + index;
+    delete_button.textContent = "Delete";
+    delete_button.className = "delete-btn";
+    delete_button.onclick = function () {
+      var li_id = "list-" + this.id.split("-")[1];
+      delete task_array[this.id.split("-")[1]];
+      document.getElementById(li_id).remove();
+    };
+
+    listitem.appendChild(complete_button);
+    listitem.appendChild(delete_button);
+    document.getElementById("tasklist").appendChild(listitem);
+  }
+</script>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    color: #000;
+    text-align: center;
+    padding-top: 30px;
+  }
+
+  #task {
+    width: 200px;
+    padding: 8px;
+    border: 2px solid #00b050;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+  }
+
+  #task::placeholder {
+    color: #aaa;
+  }
+
+  #btn {
+    background-color: pink;
+    border: none;
+    padding: 9px 18px;
+    font-size: 16px;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  #btn:hover {
+    background-color: #ffb6c1;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  li.task-item {
+    background: #fff;
+    border: 2px solid #0000ff;
+    border-radius: 4px;
+    padding: 10px 20px;
+    width: 300px;
+    margin: 8px 0;
+    text-align: left;
+    color: #0000ff;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+  }
+
+  .complete-btn {
+    background-color: green;
+    margin-left: auto;
+    margin-right: 6px;
+  }
+
+  .delete-btn {
+    background-color: red;
+  }
+
+  #error_msg {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+</style>
+</head>
+
+<body>
+  <input type="text" id="task" placeholder="Enter task" required>
+  <input type="button" id="btn" value="Add Task" onclick="addtask()">
+  <div id="error_msg"></div>
+  <ul id="tasklist"></ul>
+</body>
+</html>
