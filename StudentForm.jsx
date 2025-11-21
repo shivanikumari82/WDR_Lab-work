@@ -1,45 +1,46 @@
 import React, { useState } from "react";
 
 function StudentForm() {
+  // Separate state variables
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [standard, setStandard] = useState("");
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>Student Form</h2>
 
       <div>
         <label>Name: </label>
         <input
           type="text"
-          value={name}
           onChange={(e) => setName(e.target.value)}
         />
       </div>
+      <br />
 
       <div>
         <label>Age: </label>
         <input
           type="number"
-          value={age}
           onChange={(e) => setAge(e.target.value)}
         />
       </div>
+      <br />
 
       <div>
         <label>Standard: </label>
         <input
           type="text"
-          value={standard}
           onChange={(e) => setStandard(e.target.value)}
         />
       </div>
+      <br />
 
       <h3>Entered Data:</h3>
-      <p>Name: {name}</p>
-      <p>Age: {age}</p>
-      <p>Standard: {standard}</p>
+      <p><b>Name:</b> {name}</p>
+      <p><b>Age:</b> {age}</p>
+      <p><b>Standard:</b> {standard}</p>
     </div>
   );
 }

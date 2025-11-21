@@ -3,10 +3,11 @@ import React from "react";
 function Faculty(props) {
   return (
     <div>
-      <h2>Faculty Details</h2>
-      <p><strong>Name:</strong> {props.facName}</p>
-      <p><strong>Subject:</strong> {props.subject}</p>
-      <p><strong>Experience:</strong> {props.experience} years</p>
+      <h2>Faculty Information</h2>
+
+      <p><b>Faculty Name:</b> {props.facName}</p>
+      <p><b>Subject:</b> {props.subject}</p>
+      <p><b>Experience:</b> {props.experience}</p>
     </div>
   );
 }
